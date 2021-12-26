@@ -6,8 +6,14 @@ import 'dotenv/config';
 
 const logger = new Logger('ORM');
 const config = {
-  entities: ['./dist/src/modules/**/*.entity.js'],
-  entitiesTs: ['./src/modules/**/*.entity.ts'],
+  entities: [
+    './dist/src/modules/**/*.entity.js',
+    './dist/src/infrastructure/database/base-classes/*.entity.base.js',
+  ],
+  entitiesTs: [
+    './src/modules/**/*.entity.ts',
+    './src/infrastructure/database/base-classes/*.entity.base.ts',
+  ],
   type: 'postgresql',
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
