@@ -1,5 +1,8 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { HelloModule } from '@modules/hello/hello.module';
+import { PlaylistModule } from '@modules/playlist/playlist.module';
+import { RadioModule } from '@modules/radio/radio.module';
+import { TrackModule } from '@modules/track/track.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
@@ -14,6 +17,9 @@ import { ConfigModule } from '@nestjs/config';
     }),
     MikroOrmModule.forRoot(),
     HelloModule,
+    PlaylistModule,
+    RadioModule,
+    TrackModule,
   ],
 })
 export class AppModule {}
