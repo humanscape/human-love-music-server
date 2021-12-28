@@ -1,9 +1,10 @@
 import { SlackService } from '@modules/slack';
 import { TrackSourceProvider } from '@modules/track/enums';
 import { Track } from '@modules/track/track.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import urlParser from 'js-video-url-parser';
+import { PageRequest, PageResponse } from 'src/interface-adapters/dtos';
 import { CreateDigestRequest, DigestResponse } from './dtos';
 import { PlaylistType } from './enums';
 import { Playlist } from './playlist.entity';
@@ -31,7 +32,32 @@ export class DigestService {
     private readonly playlistRepo: PlaylistRepository,
   ) {}
 
-  async create(body: CreateDigestRequest) {
+  async get(id: string): Promise<DigestResponse> {
+    const digest = await this.playlistRepo.findOne({ id });
+    if (!digest) {
+      throw new NotFoundException(`Digest not found by id: ${id}`);
+    }
+    return DigestResponse.fromEntity(digest);
+  }
+
+  async getMany(input: PageRequest): Promise<PageResponse<DigestResponse>> {
+    const [digests, count] = await this.playlistRepo.findAndCount(
+      { playlistType: PlaylistType.DIGEST },
+      {
+        offset: (input.page - 1) * input.size,
+        limit: input.size,
+        orderBy: { createdAt: 'desc' },
+      },
+    );
+    return new PageResponse({
+      data: digests.map((it) => DigestResponse.fromEntity(it)),
+      total: count,
+      size: input.size,
+      page: input.page,
+    });
+  }
+
+  async create(body: CreateDigestRequest): Promise<DigestResponse> {
     const convertToSlackTs = (date: Date) => (date.getTime() / 1000).toString();
     const conversationRes = await this.slackService.conversations.history({
       channel:
@@ -152,7 +178,7 @@ export class DigestService {
     return hydrated;
   }
 
-  private mapServiceProvider = (name: string) => {
+  private mapServiceProvider(name: string) {
     const map: Record<string, TrackSourceProvider> = {
       YouTube: TrackSourceProvider.YOUTUBE,
       SoundCloud: TrackSourceProvider.SOUNDCLOUD,
@@ -162,5 +188,5 @@ export class DigestService {
       throw new Error('Cannot map service provider');
     }
     return provider;
-  };
+  }
 }
