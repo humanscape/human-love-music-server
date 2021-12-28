@@ -1,26 +1,35 @@
-import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
+import { PageRequest, PageResponse } from 'src/interface-adapters/dtos';
 import { DigestService } from './digest.service';
-import { CreateDigestRequest, DigestResponse } from './dto';
+import { CreateDigestRequest, DigestResponse } from './dtos';
 
 @Controller('digests')
 export class DigestController {
   constructor(private readonly digestService: DigestService) {}
 
   @Get()
-  getMany() {
-    // TODO:
-    // input: page, limit
-    // playlist.findMany({ type: digest, ... })
+  getMany(
+    @Query(new ValidationPipe({ transform: true })) query: PageRequest,
+  ): Promise<PageResponse<DigestResponse>> {
+    return this.digestService.getMany(query);
   }
 
   @Get(':id')
-  get() {
-    // TODO:
+  get(@Param('id') id: string): Promise<DigestResponse> {
+    return this.digestService.get(id);
   }
 
   @Get(':id/tracks')
-  getTracks() {
-    // TODO:
+  getTracks(@Param('id') id: string) {
+    return this.digestService.getTracks(id);
   }
 
   @Post()
