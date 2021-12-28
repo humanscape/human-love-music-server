@@ -5,7 +5,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import urlParser from 'js-video-url-parser';
 import { PageRequest, PageResponse } from 'src/interface-adapters/dtos';
-import { CreateDigestRequest, DigestResponse } from './dtos';
+import {
+  CreateDigestRequest,
+  DigestResponse,
+  DigestTrackResponse,
+} from './dtos';
 import { PlaylistType } from './enums';
 import { Playlist } from './playlist.entity';
 import { PlaylistRepository } from './playlist.repository';
@@ -55,6 +59,16 @@ export class DigestService {
       size: input.size,
       page: input.page,
     });
+  }
+
+  async getTracks(id: string): Promise<DigestTrackResponse[]> {
+    const digest = await this.playlistRepo.findOne({ id });
+    if (!digest) {
+      throw new NotFoundException(`Digest not found by id: ${id}`);
+    }
+    return (await digest.tracks.loadItems()).map((it) =>
+      DigestTrackResponse.fromEntity(it),
+    );
   }
 
   async create(body: CreateDigestRequest): Promise<DigestResponse> {

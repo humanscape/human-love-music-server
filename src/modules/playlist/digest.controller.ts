@@ -28,8 +28,8 @@ export class DigestController {
   }
 
   @Get(':id/tracks')
-  getTracks() {
-    // TODO:
+  getTracks(@Param('id') id: string) {
+    return this.digestService.getTracks(id);
   }
 
   @Post()
