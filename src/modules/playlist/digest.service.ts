@@ -4,7 +4,7 @@ import { Track } from '@modules/track/track.entity';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import urlParser from 'js-video-url-parser';
-import { CreateDigestRequest, DigestResponse } from './dto';
+import { CreateDigestRequest, DigestResponse } from './dtos';
 import { PlaylistType } from './enums';
 import { Playlist } from './playlist.entity';
 import { PlaylistRepository } from './playlist.repository';
@@ -138,7 +138,6 @@ export class DigestService {
     if (!['video', 'track'].includes(parsed.mediaType || '')) {
       return false;
     }
-    urlParser.create;
     return true;
   }
 

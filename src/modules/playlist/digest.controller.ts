@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
 import { DigestService } from './digest.service';
-import { CreateDigestRequest, DigestResponse } from './dto';
+import { CreateDigestRequest, DigestResponse } from './dtos';
 
 @Controller('digests')
 export class DigestController {
