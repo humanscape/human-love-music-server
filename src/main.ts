@@ -13,6 +13,7 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, docOptions);
   SwaggerModule.setup('docs', app, document);
 
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(configService.get('PORT') || '');
