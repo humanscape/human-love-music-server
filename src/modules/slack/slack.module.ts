@@ -1,6 +1,9 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { DynamicModule, Module } from '@nestjs/common';
 import { WebClient } from '@slack/web-api';
+import { SlackMember } from './slack-member.entity';
 import { SLACK_WEB_CLIENT } from './slack.constant';
+import { SlackController } from './slack.controller';
 import { SlackService } from './slack.service';
 
 export interface SlackModuleOptions {
@@ -9,7 +12,9 @@ export interface SlackModuleOptions {
 }
 
 @Module({
+  imports: [MikroOrmModule.forFeature([SlackMember])],
   providers: [SlackService],
+  controllers: [SlackController],
   exports: [SlackService],
 })
 export class SlackModule {

@@ -14,11 +14,6 @@ import { PlaylistType } from './enums';
 import { Playlist } from './playlist.entity';
 import { PlaylistRepository } from './playlist.repository';
 
-export interface MemberSummary {
-  id: string;
-  name: string;
-}
-
 export interface MessageSummery {
   author: string;
   text: string;
@@ -92,7 +87,7 @@ export class DigestService {
       console.warn('Exceed Slack pagination size');
     }
 
-    const memberIdMap = await this.getMemberIdMap();
+    const memberIdMap = await this.slackService.getMemberSlackIdMap();
     const messagesWithMusic = messages.reduce((total, message) => {
       const initialMusic = message.attachments?.find(
         (it) =>
@@ -145,26 +140,6 @@ export class DigestService {
     );
     await this.playlistRepo.persistAndFlush(digest);
     return DigestResponse.fromEntity(digest);
-  }
-
-  private async getMemberIdMap() {
-    const userRes = await this.slackService.users.list();
-    if (userRes.error) {
-      throw new Error(userRes.error);
-    }
-    const { members } = userRes;
-    if (!members || !members.length) {
-      throw new Error('No users exists');
-    }
-
-    const memberSummaries: MemberSummary[] = members
-      .filter((it) => !it.is_bot)
-      .map((it) => ({ id: it.id || '', name: `@${it.name!}` }));
-    const memberIdMap = new Map<string, MemberSummary>();
-    memberSummaries.forEach((it) => {
-      memberIdMap.set(it.id, it);
-    });
-    return memberIdMap;
   }
 
   private isSupportedMusicUrl(url: string | undefined) {
