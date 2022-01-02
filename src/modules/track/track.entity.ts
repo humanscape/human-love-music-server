@@ -33,10 +33,4 @@ export class Track extends DateAuditEntityBase {
 
   @ManyToOne({ entity: () => Playlist, wrappedReference: true })
   playlist!: IdentifiedReference<Playlist>;
-
-  /**
-   * TODO: 미정 프로퍼티
-   * - thumbnailUrl: 조회방식, 출력 여부 미정
-   * - length: 라디오 스케쥴링시 결정
-   */
 }
