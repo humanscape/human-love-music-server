@@ -25,6 +25,7 @@ export class Playlist extends DateAuditEntityBase {
     entity: () => Track,
     mappedBy: (track) => track.playlist,
     orderBy: { position: QueryOrder.ASC },
+    orphanRemoval: true,
   })
   tracks = new Collection<Track>(this);
 }
