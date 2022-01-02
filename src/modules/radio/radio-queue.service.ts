@@ -5,9 +5,12 @@ import {
   isMessageChangedEvent,
   MessageEvent,
 } from '@modules/slack/types';
+import { TrackInfoService } from '@modules/track/track-info.service';
 import { Track } from '@modules/track/track.entity';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { RadioGateway } from './radio.gateway';
 import { RadioRepository } from './radio.repository';
 
 const QUEUE_COMMAND = '#큐';
@@ -18,6 +21,9 @@ export class RadioQueueService {
     private readonly slackService: SlackService,
     private readonly configService: ConfigService,
     private readonly radioRepository: RadioRepository,
+    private readonly radioGateway: RadioGateway,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly trackInfoService: TrackInfoService,
   ) {}
 
   async addToQueue(body: EnvelopedEvent<MessageEvent>) {
@@ -55,6 +61,8 @@ export class RadioQueueService {
     const playlist = radio.playlist.unwrap();
     const currentTracks = playlist.tracks.getItems();
 
+    // TODO: check tracks with same url exists
+
     const position = currentTracks.length
       ? currentTracks[currentTracks.length - 1].position + 1
       : 1;
@@ -69,14 +77,26 @@ export class RadioQueueService {
     track.author = summary.author;
 
     playlist.tracks.add(track);
+
+    const playImmediately = !radio.currentTrackId;
+    if (playImmediately) {
+      radio.currentTrackId = track.id;
+      radio.currentTrackStartedAt = new Date();
+      radio.currentTrackDuration = await this.trackInfoService.getDuration(
+        track.sourceProvider,
+        track.sourceUrl,
+      );
+    }
     await this.radioRepository.persistAndFlush(radio);
 
-    /**
-     * TODO:
-     * - check tracks with same url exists
-     * - update radio context
-     * - publish message and schedule jobs
-     */
+    if (playImmediately) {
+      const task = setTimeout(
+        () => this.radioGateway.handlePlayNext(),
+        (radio.currentTrackDuration ?? 0) * 1000,
+      );
+      this.schedulerRegistry.addTimeout(`task/play-next-${task}`, task);
+    }
+    this.radioGateway.handleTrackAdded();
     return;
   }
 }

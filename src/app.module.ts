@@ -6,6 +6,7 @@ import { SlackModule } from '@modules/slack/slack.module';
 import { TrackModule } from '@modules/track/track.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ConfigModule } from '@nestjs/config';
       botToken: process.env.SLACK_BOT_TOKEN as string,
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     HelloModule,
     PlaylistModule,
     RadioModule,
