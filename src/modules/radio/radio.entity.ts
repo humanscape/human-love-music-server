@@ -17,12 +17,12 @@ export class Radio extends EntityBase {
   @OneToOne({ entity: () => Playlist, wrappedReference: true })
   playlist!: IdentifiedReference<Playlist>;
 
-  @Property({ nullable: true })
-  currentTrackId?: string;
+  @Property({ type: String, nullable: true })
+  currentTrackId?: string | null;
 
-  @Property({ nullable: true })
-  currentTrackStartedAt?: Date;
+  @Property({ type: Date, nullable: true })
+  currentTrackStartedAt?: Date | null;
 
-  @Property({ nullable: true })
-  currentTrackDuration?: number;
+  @Property({ type: Number, nullable: true })
+  currentTrackDuration?: number | null;
 }
