@@ -24,7 +24,7 @@ export class RadioGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(
-    private readonly orm: MikroORM,
+    private readonly orm: MikroORM, // Do not remove. @UseRequestContext depends on it
     private readonly radioRepo: RadioRepository,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly trackInfoService: TrackInfoService,
@@ -61,7 +61,6 @@ export class RadioGateway
       { roomName: 'main' },
       { populate: ['playlist.tracks'] },
     );
-    console.log('@play next', radio.currentTrackId);
     if (!radio.currentTrackId) {
       this.logger.warn('This should not happen: radio.currentTrackId not set');
       return;
