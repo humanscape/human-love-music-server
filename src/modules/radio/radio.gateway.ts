@@ -1,19 +1,17 @@
+import { MikroORM } from '@mikro-orm/core';
+import { UseRequestContext } from '@mikro-orm/nestjs';
+import { TrackInfoService } from '@modules/track/track-info.service';
 import { Logger } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { UseRequestContext } from '@mikro-orm/nestjs';
-import { SchedulerRegistry } from '@nestjs/schedule';
 import { Server, Socket } from 'socket.io';
 import { RadioRepository } from './radio.repository';
-import { MikroORM } from '@mikro-orm/core';
-import { TrackInfoService } from '@modules/track/track-info.service';
 
 @WebSocketGateway({
   transports: ['websocket'],
@@ -32,11 +30,6 @@ export class RadioGateway
 
   @WebSocketServer() server!: Server;
   private logger: Logger = new Logger('RadioGateway');
-
-  @SubscribeMessage('foo')
-  handleEvent(@MessageBody() data: string): string {
-    return data;
-  }
 
   afterInit(server: Server) {
     this.logger.log('Init');
