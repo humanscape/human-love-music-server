@@ -84,4 +84,22 @@ yarn start:dev
 
 > 위 커맨드로 앱 실행시 .env.production 파일을 환경변수로 사용합니다.
 
-배포와 관련된 내용은 현재 변동 가능성이 커서 추후에 작성합니다.
+Node 런타임을 제공하는 환경에 서버를 배포 & 실행시킵니다.
+가급적 단일 인스턴스 환경에서 앱을 운용하는 해야 예약 작업 관련 이슈를 최소화시킬 수 있습니다. (ec2 등)
+
+## 트러블 슈팅 & 관리
+
+### 라디오 큐가 꼬인 경우(재생이 멈추거나 다음 곡으로 넘어가지 않음)
+
+- 예약 작업이 setTimeout(인메모리)로 관리되기 때문에 일부 관리형 서비스에 배포 및 운용시, 혹은 다중 인스턴스 환경에서 큐 관리에 실패할 수 있습니다.
+- 궁극적으로는 메시지큐 도입을 해야 안정화됩니다.
+  - 예약 작업을 지원하고, 딜레이가 적은 것
+  - https://github.com/rabbitmq/rabbitmq-delayed-message-exchange 를 괜찮은 후보로 보고 있습니다.
+- 현재 상태에서는 다음과 같은 절차로 일시적 해소 가능합니다.
+  1. DB에서 radio 테이블에 존재하는 단일 로우의 `current_track_id`, `current_track_started_at`, `current_track_duration`의 값을 모두 `null`로 설정합니다.
+  1. 해당 `radio.playlist..tracks`를 모두 제거합니다.
+  1. 앱을 재부팅합니다.
+
+### 회사 멤버 변동이 있는 경우
+
+`PUT /slack/members`를 실행하여 `slack_member` 테이블을 업데이트 합니다.
